@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#182235" />
+    <meta name="description" content="Deutsch Quest: belajar bahasa Jerman melalui petualangan RPG." />
+    <title>Deutsch Quest | Learn German by Adventure</title>
+  </head>
+  <body>
+    <div id="app">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="Deutsch Quest home"><span class="brand-mark">DQ</span><span>Deutsch Quest</span></a>
+        <div class="top-actions">
+          <label class="language-control"><span id="language-label">Bahasa</span>
+            <select id="language-select" aria-label="Interface language">
+              <option value="id">🇮🇩 Indonesia</option>
+              <option value="en">🇬🇧 English</option>
+              <option value="de">🇩🇪 Deutsch</option>
+              <option value="es">🇪🇸 Español</option>
+            </select>
+          </label>
+          <button id="auth-open" class="button button-outline">Masuk / Daftar</button>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="hero-panel">
+          <div class="eyebrow" id="world-eyebrow">DUNIA BELAJAR • PETUALANGAN JERMAN</div>
+          <h1 id="hero-title">Jelajahi dunia.<br /><span>Temukan bahasanya.</span></h1>
+          <p id="hero-copy">Temui penduduk, selesaikan tantangan bahasa Jerman, dan kumpulkan XP dalam perjalananmu.</p>
+          <div class="stats-row">
+            <div class="stat-card"><span class="stat-icon">✦</span><div><small id="xp-label">Total XP</small><strong id="xp-value">0 XP</strong></div></div>
+            <div class="stat-card"><span class="stat-icon">▣</span><div><small id="level-label">Level bahasa</small><strong id="level-value">A1 · Pemula</strong></div></div>
+            <div class="stat-card"><span class="stat-icon">◎</span><div><small id="online-label">Pemain online</small><strong id="online-value">Mode lokal</strong></div></div>
+          </div>
+        </section>
+
+        <section class="game-card">
+          <div class="game-heading">
+            <div><span class="live-dot"></span><span id="map-label">Lembah Pemula</span><small id="map-subtitle">Area 01 · Desa Sonnenfeld</small></div>
+            <div class="game-controls"><span id="connection-state" class="status-pill">Offline lokal</span><button id="help-button" class="icon-button" title="Controls">?</button></div>
+          </div>
+          <div id="game-container" aria-label="Deutsch Quest game map"></div>
+          <div class="touch-controls" aria-label="Mobile movement controls">
+            <div class="touch-spacer"></div>
+            <button type="button" data-direction="up" aria-label="Move up">▲</button>
+            <div class="touch-row"><button type="button" data-direction="left" aria-label="Move left">◀</button><button type="button" data-direction="down" aria-label="Move down">▼</button><button type="button" data-direction="right" aria-label="Move right">▶</button></div>
+          </div>
+          <div class="game-footer">
+            <span id="controls-copy">Gerakkan karakter dengan WASD / tombol panah. Dekati Frau Marta lalu tekan E.</span>
+            <button id="talk-button" class="button button-primary">Bicara dengan NPC ↗</button>
+          </div>
+        </section>
+
+        <section class="bottom-grid">
+          <article class="info-card">
+            <div class="section-kicker" id="quest-kicker">MISI AKTIF</div>
+            <h2 id="quest-title">Salam dari Sonnenfeld</h2>
+            <p id="quest-copy">Temui Frau Marta dan pelajari salam dasar bahasa Jerman.</p>
+            <div class="quest-progress"><span id="quest-progress-bar"></span></div>
+            <div class="quest-meta"><span id="quest-progress-text">0 dari 1 langkah</span><span id="quest-reward">Hadiah: 25 XP</span></div>
+          </article>
+          <article class="info-card">
+            <div class="section-kicker" id="players-kicker">PETUALANG LAIN</div>
+            <h2 id="players-title">Teman di dunia ini</h2>
+            <p id="players-copy">Masuk untuk menyimpan progres dan melihat pemain yang berada di area ini.</p>
+            <div id="players-list" class="players-list"><span class="muted">Multiplayer memerlukan konfigurasi Supabase.</span></div>
+          </article>
+          <article class="info-card">
+            <div class="section-kicker" id="path-kicker">JALUR BELAJAR</div>
+            <h2 id="path-title">Perjalanan CEFR</h2>
+            <div id="cefr-path" class="cefr-path"></div>
+          </article>
+        </section>
+      </main>
+
+      <div id="dialog-backdrop" class="dialog-backdrop hidden">
+        <section class="dialog-card" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
+          <button id="dialog-close" class="dialog-close" aria-label="Close">×</button>
+          <div class="npc-avatar">👩🏻‍🌾</div>
+          <div class="section-kicker" id="dialog-kicker">FRAU MARTA · A1</div>
+          <h2 id="dialog-title">Guten Tag!</h2>
+          <p id="dialog-question">Apa arti “Guten Tag”?</p>
+          <div id="answer-list" class="answer-list"></div>
+          <p id="answer-feedback" class="feedback" aria-live="polite"></p>
+          <button id="next-question" class="button button-primary full-width hidden">Lanjutkan</button>
+        </section>
+      </div>
+
+      <div id="auth-backdrop" class="dialog-backdrop hidden">
+        <section class="dialog-card auth-card" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+          <button id="auth-close" class="dialog-close" aria-label="Close">×</button>
+          <div class="section-kicker">DEUTSCH QUEST ACCOUNT</div>
+          <h2 id="auth-title">Masuk ke petualangan</h2>
+          <p id="auth-description">Akun Supabase menyimpan progres dan mengaktifkan fitur online setelah konfigurasi selesai.</p>
+          <form id="auth-form">
+            <label for="email-input" id="email-label">Email</label>
+            <input id="email-input" type="email" autocomplete="email" required placeholder="kamu@example.com" />
+            <label for="password-input" id="password-label">Kata sandi</label>
+            <input id="password-input" type="password" autocomplete="current-password" minlength="8" required placeholder="Minimal 8 karakter" />
+            <div class="auth-actions"><button type="submit" id="login-button" class="button button-primary">Masuk</button><button type="button" id="signup-button" class="button button-outline">Buat akun</button></div>
+          </form>
+          <p id="auth-message" class="feedback" aria-live="polite"></p>
+          <button id="logout-button" class="button button-outline hidden">Keluar</button>
+        </section>
+      </div>
+
+      <div id="toast" class="toast" role="status" aria-live="polite"></div>
+      <footer class="site-footer"><span>Deutsch Quest · Early Access</span><span id="footer-note">Belajar bahasa, satu petualangan setiap kali.</span></footer>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
