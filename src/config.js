@@ -2,6 +2,6 @@
 // The anon key is intended for browser use when Row Level Security (RLS) is configured.
 // NEVER put a Supabase service_role key in frontend code.
 export default {
-  SUPABASE_URL: "YOUR_PROJECT_URL",
-  SUPABASE_ANON_KEY: "YOUR_SUPABASE_ANON_KEY"
+  SUPABASE_URL: "https://utbfokuyzazcsjdfsfes.supabase.co",
+  SUPABASE_ANON_KEY: "sb_publishable_3VY6NMSz-Tartt1O-BHbFg_-_TQaqhq"
 };
