@@ -3,6 +3,7 @@ import { supabase, isSupabaseConfigured } from "./supabaseClient.js";
 import { getLanguage, setLanguage, languages } from "./i18n.js";
 import { cefrLevels, lessons } from "./content.js";
 import { initQuestSystem } from "./questSystem.js";
+import { initTeamWorkshop } from "./teamWorkshop.js";
 import "./style.css";
 
 const state = {
@@ -470,10 +471,17 @@ function init() {
     getLanguage: () => state.language,
     toast
   });
+  state.teamWorkshop = initTeamWorkshop({
+    supabase,
+    getUser: () => state.user,
+    getPlayerName: () => state.displayName,
+    toast
+  });
   initAuth();
   window.addEventListener("beforeunload", () => {
     if (supabase && state.realtimeChannel) supabase.removeChannel(state.realtimeChannel);
     if (state.questSystem) state.questSystem.close();
+    if (state.teamWorkshop) state.teamWorkshop.close();
   });
 }
 init();

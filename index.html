@@ -2,180 +2,150 @@
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#182235" />
+    <meta name="description" content="Deutsch Quest: belajar bahasa Jerman melalui petualangan RPG." />
     <title>Deutsch Quest | Learn German by Adventure</title>
-    <link rel="stylesheet" href="/src/style.css" />
   </head>
-  <body class="rpg-mode">
+  <body>
     <div id="app">
-      
-      <!-- Peta Game Utama -->
-      <div id="game-container" aria-label="Deutsch Quest game map"></div>
-
-      <!-- ==========================================
-           ELEMEN TERSEMBUNYI (AGAR JS TIDAK CRASH)
-           ========================================== -->
-      <div id="hidden-elements" style="display: none !important;">
-        <div id="world-eyebrow"></div>
-        <h1 id="hero-title"></h1>
-        <p id="hero-copy"></p>
-        <small id="map-subtitle"></small>
-        <div id="raid-title"></div>
-        <button id="solo-raid-button"></button>
-        <input id="team-room-input" />
-        <button id="join-team-button"></button>
-        <div id="team-status"></div>
-        <button id="team-raid-button"></button>
-        <select id="ai-level-select"></select>
-        <button id="ai-raid-button"></button>
-        <small id="ai-status"></small>
-        <div id="players-kicker"></div>
-        <h2 id="players-title"></h2>
-        <p id="players-copy"></p>
-        <div id="path-kicker"></div>
-        <h2 id="path-title"></h2>
-        <div id="cefr-path"></div>
-        <p id="auth-description"></p>
-        <label id="display-name-label"></label>
-        <label id="email-label"></label>
-        <label id="password-label"></label>
-        <p id="auth-message"></p>
-        <button id="logout-button"></button>
-        <span id="footer-note"></span>
-      </div>
-
-      <!-- ==========================================
-           HUD (HEADS UP DISPLAY) MELAYANG
-           ========================================== -->
-      <div class="hud-layer">
-        
-        <!-- Top Bar -->
-        <header class="topbar floating-topbar">
-          <a class="brand" href="#"><span class="brand-mark">DQ</span><span>Deutsch Quest</span></a>
-          <div class="top-actions">
-            <label class="language-control"><span id="language-label">Bahasa</span>
-              <select id="language-select">
-                <option value="id">🇮🇩 Indonesia</option>
-                <option value="en">🇬🇧 English</option>
-                <option value="de">🇩🇪 Deutsch</option>
-                <option value="es">🇪🇸 Español</option>
-              </select>
-            </label>
-            <button id="auth-open" class="button button-outline">Masuk / Daftar</button>
-          </div>
-        </header>
-
-        <!-- HUD Kiri Atas (Stats) -->
-        <div class="hud top-left">
-          <div class="stat-card"><span class="stat-icon">✦</span><div><small id="xp-label">XP</small><strong id="xp-value">0</strong></div></div>
-          <div class="stat-card"><span class="stat-icon">▣</span><div><small id="level-label">Level</small><strong id="level-value">A1</strong></div></div>
-          <div class="stat-card"><span class="stat-icon">◎</span><div><small id="online-label">Status</small><strong id="online-value">Mode lokal</strong></div></div>
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="Deutsch Quest home"><span class="brand-mark">DQ</span><span>Deutsch Quest</span></a>
+        <div class="top-actions">
+          <label class="language-control"><span id="language-label">Bahasa</span>
+            <select id="language-select" aria-label="Interface language">
+              <option value="id">🇮🇩 Indonesia</option>
+              <option value="en">🇬🇧 English</option>
+              <option value="de">🇩🇪 Deutsch</option>
+              <option value="es">🇪🇸 Español</option>
+            </select>
+          </label>
+          <button id="auth-open" class="button button-outline">Masuk / Daftar</button>
         </div>
+      </header>
 
-        <!-- HUD Kanan Atas (Misi & Daftar Pemain) -->
-        <div class="hud top-right">
-          <div class="location-hud">
-            <span class="live-dot"></span><span id="map-label">Lembah Pemula</span>
-            <div id="connection-state" class="status-pill">Offline</div>
+      <main class="layout">
+        <section class="hero-panel">
+          <div class="eyebrow" id="world-eyebrow">DUNIA BELAJAR • PETUALANGAN JERMAN</div>
+          <h1 id="hero-title">Jelajahi dunia.<br /><span>Temukan bahasanya.</span></h1>
+          <p id="hero-copy">Temui penduduk, selesaikan tantangan bahasa Jerman, dan kumpulkan XP dalam perjalananmu.</p>
+          <div class="stats-row">
+            <div class="stat-card"><span class="stat-icon">✦</span><div><small id="xp-label">Total XP</small><strong id="xp-value">0 XP</strong></div></div>
+            <div class="stat-card"><span class="stat-icon">▣</span><div><small id="level-label">Level bahasa</small><strong id="level-value">A1 · Pemula</strong></div></div>
+            <div class="stat-card"><span class="stat-icon">◎</span><div><small id="online-label">Pemain online</small><strong id="online-value">Mode lokal</strong></div></div>
           </div>
-          <article class="quest-hud">
-            <div class="section-kicker" id="quest-kicker">MISI AKTIF</div>
-            <h3 id="quest-title">Salam dari Sonnenfeld</h3>
-            <p id="quest-copy">Temui Frau Marta.</p>
-            <div class="quest-progress"><span id="quest-progress-bar" style="width: 0%;"></span></div>
-            <div class="quest-meta"><span id="quest-progress-text">0/1</span><span id="quest-reward">25 XP</span></div>
-          </article>
-          
-          <article class="quest-hud" style="margin-top: 10px; padding: 12px;">
-            <div class="section-kicker" style="margin-bottom: 5px;">PEMAIN DI AREA INI</div>
-            <div id="players-list" class="players-list"><span class="muted">Belum ada pemain lain.</span></div>
-          </article>
-        </div>
+        </section>
 
-        <!-- Kontrol Bawah -->
-        <div class="hud bottom-controls">
-          <div class="action-buttons">
-            <span id="controls-copy" class="desktop-only">WASD/Panah = Gerak. Tekan E = Interaksi.</span>
-            <button id="talk-button" class="button button-primary hidden">Bicara (E)</button>
-            <button id="help-button" class="icon-button">?</button>
+        <section class="game-card">
+          <div class="game-heading">
+            <div><span class="live-dot"></span><span id="map-label">Lembah Pemula</span><small id="map-subtitle">Area 01 · Desa Sonnenfeld</small></div>
+            <div class="game-controls"><span id="connection-state" class="status-pill">Offline lokal</span><button id="help-button" class="icon-button" title="Controls">?</button></div>
           </div>
-          
-          <div class="touch-controls">
+          <div id="game-container" aria-label="Deutsch Quest game map"></div>
+          <div class="touch-controls" aria-label="Mobile movement controls">
             <div class="touch-spacer"></div>
-            <button type="button" data-direction="up">▲</button>
-            <div class="touch-row"><button type="button" data-direction="left">◀</button><button type="button" data-direction="down">▼</button><button type="button" data-direction="right">▶</button></div>
+            <button type="button" data-direction="up" aria-label="Move up">▲</button>
+            <div class="touch-row"><button type="button" data-direction="left" aria-label="Move left">◀</button><button type="button" data-direction="down" aria-label="Move down">▼</button><button type="button" data-direction="right" aria-label="Move right">▶</button></div>
           </div>
-        </div>
-      </div>
+          <div class="game-footer">
+            <span id="controls-copy">Gerakkan karakter dengan WASD / tombol panah. Dekati Frau Marta lalu tekan E.</span>
+            <button id="talk-button" class="button button-primary">Bicara dengan NPC ↗</button>
+          </div>
+        </section>
 
-      <!-- ==========================================
-           KOTAK DIALOG RPG
-           ========================================== -->
-      <div id="dialog-backdrop" class="rpg-dialog-container hidden">
-        <section class="rpg-dialog-box" role="dialog">
-          <div class="npc-avatar">👩🏻‍🌾</div>
-          <div class="dialog-content">
-            <div class="dialog-header">
-              <span class="npc-name" id="dialog-kicker">FRAU MARTA</span>
-              <button id="dialog-close" class="dialog-close">×</button>
+        <section class="raid-hub info-card" aria-labelledby="raid-title">
+          <div class="raid-intro"><div class="section-kicker">STORY RAID · GERMAN IS THE BOSS</div><h2 id="raid-title">The Sprachwächter is corrupting the village</h2><p>Fight with language, not swords. Read the scene, choose a natural German response, and break the boss's shield. Each chapter raises the CEFR difficulty.</p></div>
+          <div class="raid-grid">
+            <article class="raid-card"><span class="raid-icon">🧭</span><h3>Solo campaign</h3><p>Learn the story at your own pace. Three phases, growing difficulty, hints after mistakes.</p><button id="solo-raid-button" class="button button-primary">Start solo raid</button></article>
+            <article class="raid-card"><span class="raid-icon">🛡️</span><h3>Team raid · 2–4 players</h3><p>Join a room with a friend. Share boss health and party hearts; the team must discuss answers together.</p><label for="team-room-input">Room code</label><div class="room-row"><input id="team-room-input" maxlength="12" value="SONNENFELD" aria-label="Team room code"><button id="join-team-button" class="button button-outline">Join room</button></div><div id="team-status" class="team-status">Sign in and join the same room with at least 2 players.</div><button id="team-raid-button" class="button button-primary" disabled>Start team raid (need 2)</button></article>
+            <article class="raid-card ai-card"><span class="raid-icon">✧</span><h3>AI Quest Master</h3><p>Generate fresh contextual quests with adjustable CEFR level. If AI is not configured, the game uses reviewed starter scenarios instead.</p><label for="ai-level-select">Challenge level</label><select id="ai-level-select"><option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option><option>C2</option></select><button id="ai-raid-button" class="button button-outline">Ask Quest Master</button><small id="ai-status">AI needs a secure Supabase Edge Function. No API key belongs in browser code.</small></article>
+          </div>
+          <section class="team-workshop" aria-labelledby="workshop-title">
+            <div class="workshop-heading">
+              <div><div class="section-kicker">CO-OP LANGUAGE LAB</div><h2 id="workshop-title">Build a German solution together</h2><p>Not a quiz: brainstorm, assemble a sentence together, and vote for the strongest idea.</p></div>
+              <div class="workshop-room"><label for="workshop-room-input">Workshop room</label><div class="room-row"><input id="workshop-room-input" maxlength="12" value="SONNENFELD" aria-label="Workshop room code"><button id="workshop-join" class="button button-outline">Join lab</button></div><small id="workshop-status">Sign in, then join the same room with a teammate.</small></div>
             </div>
-            <h2 id="dialog-title">Guten Tag!</h2>
-            <p id="dialog-question">Apa arti “Guten Tag”?</p>
-            <div id="answer-list" class="answer-list"></div>
-            <p id="answer-feedback" class="feedback" aria-live="polite"></p>
-            <button id="next-question" class="button button-primary hidden">Lanjutkan ➔</button>
-          </div>
+            <div class="workshop-challenge"><span class="workshop-badge">TEAM MISSION 01</span><h3 id="workshop-scenario-title">The festival plan is falling apart</h3><p id="workshop-scenario">The rain is coming. Suggest a new plan to the village team in German. Include a suggestion and a reason.</p><div class="workshop-goal"><b>Goal:</b> create one natural German sentence together. <b>Level:</b> B1 collaboration</div></div>
+            <div class="workshop-columns">
+              <article class="workshop-pane"><h3>1 · Brainstorm ideas</h3><p>Each player contributes a proposal or useful phrase.</p><form id="workshop-idea-form" class="workshop-input-row"><input id="workshop-idea-input" maxlength="180" placeholder="Wir könnten das Fest in die Halle verlegen …" aria-label="Your idea"><button class="button button-primary" type="submit">Share idea</button></form><div id="workshop-ideas" class="workshop-ideas"><p class="muted">Ideas from your team will appear here.</p></div></article>
+              <article class="workshop-pane"><h3>2 · Build one shared sentence</h3><p>Add a phrase to the shared sentence. Teammates see changes live.</p><div class="phrase-bank" id="workshop-phrases"><button type="button" data-phrase="Wir könnten">Wir könnten</button><button type="button" data-phrase="das Fest">das Fest</button><button type="button" data-phrase="in die Halle">in die Halle</button><button type="button" data-phrase="verlegen,">verlegen,</button><button type="button" data-phrase="weil">weil</button><button type="button" data-phrase="es draußen regnet.">es draußen regnet.</button></div><div id="workshop-sentence" class="workshop-sentence" aria-live="polite">Your team's sentence will appear here…</div><div class="workshop-actions"><button id="workshop-undo" class="button button-outline">Undo last phrase</button><button id="workshop-clear" class="button button-outline">Clear sentence</button><button id="workshop-submit" class="button button-primary">Submit team draft</button></div><p id="workshop-feedback" class="feedback" aria-live="polite"></p></article>
+            </div>
+            <div class="workshop-bottom"><div><h3>3 · Team decision</h3><p>Vote on the idea you think the group should use.</p><div id="workshop-votes" class="workshop-votes">No votes yet.</div></div><div class="workshop-team"><h3>Party members <span id="workshop-member-count">0</span></h3><div id="workshop-members" class="workshop-members">No teammates connected.</div></div></div>
+          </section>
+        </section>
+
+        <section class="bottom-grid">
+          <article class="info-card">
+            <div class="section-kicker" id="quest-kicker">MISI AKTIF</div>
+            <h2 id="quest-title">Salam dari Sonnenfeld</h2>
+            <p id="quest-copy">Temui Frau Marta dan pelajari salam dasar bahasa Jerman.</p>
+            <div class="quest-progress"><span id="quest-progress-bar"></span></div>
+            <div class="quest-meta"><span id="quest-progress-text">0 dari 1 langkah</span><span id="quest-reward">Hadiah: 25 XP</span></div>
+          </article>
+          <article class="info-card">
+            <div class="section-kicker" id="players-kicker">PETUALANG LAIN</div>
+            <h2 id="players-title">Teman di dunia ini</h2>
+            <p id="players-copy">Masuk untuk menyimpan progres dan melihat pemain yang berada di area ini.</p>
+            <div id="players-list" class="players-list"><span class="muted">Multiplayer memerlukan konfigurasi Supabase.</span></div>
+          </article>
+          <article class="info-card">
+            <div class="section-kicker" id="path-kicker">JALUR BELAJAR</div>
+            <h2 id="path-title">Perjalanan CEFR</h2>
+            <div id="cefr-path" class="cefr-path"></div>
+          </article>
+        </section>
+      </main>
+
+      <div id="dialog-backdrop" class="dialog-backdrop hidden">
+        <section class="dialog-card" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
+          <button id="dialog-close" class="dialog-close" aria-label="Close">×</button>
+          <div class="npc-avatar">👩🏻‍🌾</div>
+          <div class="section-kicker" id="dialog-kicker">FRAU MARTA · A1</div>
+          <h2 id="dialog-title">Guten Tag!</h2>
+          <p id="dialog-question">Apa arti “Guten Tag”?</p>
+          <div id="answer-list" class="answer-list"></div>
+          <p id="answer-feedback" class="feedback" aria-live="polite"></p>
+          <button id="next-question" class="button button-primary full-width hidden">Lanjutkan</button>
         </section>
       </div>
 
-      <!-- ==========================================
-           POPUP MODAL (RAID & AUTH)
-           ========================================== -->
-      <div id="raid-backdrop" class="modal-backdrop hidden">
-        <section class="dialog-card raid-dialog">
-          <button id="raid-close" class="dialog-close">×</button>
+      <div id="raid-backdrop" class="dialog-backdrop hidden">
+        <section class="dialog-card raid-dialog" role="dialog" aria-modal="true" aria-labelledby="raid-boss-name">
+          <button id="raid-close" class="dialog-close" aria-label="Close">×</button>
           <div class="raid-boss-visual" id="raid-boss-visual">👁️‍🗨️</div>
-          <div class="section-kicker" id="raid-phase-label">CHAPTER 1</div>
-          <h2 id="raid-boss-name">Boss Name</h2>
-          <p id="raid-story">Story text...</p>
-          <div class="raid-meters">
-            <div><span>Boss shield</span><strong id="boss-hp-text">3 / 3</strong></div>
-            <div class="meter"><span id="boss-hp-bar"></span></div>
-            <div><span>Party hearts</span><strong id="party-hearts">♥ ♥ ♥</strong></div>
-          </div>
-          <div class="scenario-box">
-            <span class="section-kicker">SCENE</span>
-            <p id="raid-scene">Scene text...</p>
-            <h3 id="raid-prompt">Prompt text?</h3>
-          </div>
+          <div class="section-kicker" id="raid-phase-label">CHAPTER 1 · A1</div>
+          <h2 id="raid-boss-name">Der Sprachwächter</h2>
+          <p id="raid-story">The village gate is sealed by a language curse.</p>
+          <div class="raid-meters"><div><span>Boss shield</span><strong id="boss-hp-text">3 / 3</strong></div><div class="meter"><span id="boss-hp-bar"></span></div><div><span>Party hearts</span><strong id="party-hearts">♥ ♥ ♥</strong></div></div>
+          <div class="scenario-box"><span class="section-kicker">SCENE</span><p id="raid-scene">A villager greets you at the gate.</p><h3 id="raid-prompt">What is the most natural reply?</h3></div>
           <div id="raid-answer-list" class="answer-list"></div>
-          <p id="raid-feedback" class="feedback"></p>
-          <div class="raid-dialog-actions">
-            <button id="raid-hint-button" class="button button-outline">Hint</button>
-            <button id="raid-next-button" class="button button-primary hidden">Next</button>
-          </div>
+          <p id="raid-feedback" class="feedback" aria-live="polite"></p>
+          <div class="raid-dialog-actions"><button id="raid-hint-button" class="button button-outline">Get a hint</button><button id="raid-next-button" class="button button-primary hidden">Next phase</button></div>
         </section>
       </div>
 
-      <div id="auth-backdrop" class="modal-backdrop hidden">
-        <section class="dialog-card auth-card">
-          <button id="auth-close" class="dialog-close">×</button>
+      <div id="auth-backdrop" class="dialog-backdrop hidden">
+        <section class="dialog-card auth-card" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+          <button id="auth-close" class="dialog-close" aria-label="Close">×</button>
           <div class="section-kicker">DEUTSCH QUEST ACCOUNT</div>
           <h2 id="auth-title">Masuk ke petualangan</h2>
+          <p id="auth-description">Akun Supabase menyimpan progres dan mengaktifkan fitur online setelah konfigurasi selesai.</p>
           <form id="auth-form">
-            <input id="display-name-input" type="text" placeholder="Nama Pemain" />
-            <input id="email-input" type="email" required placeholder="Email" />
-            <input id="password-input" type="password" required placeholder="Password" />
-            <div class="auth-actions">
-              <button type="submit" id="login-button" class="button button-primary">Masuk</button>
-              <button type="button" id="signup-button" class="button button-outline">Daftar</button>
-            </div>
+            <label for="display-name-input" id="display-name-label">Nama pemain (ditampilkan ke pemain lain)</label>
+            <input id="display-name-input" type="text" autocomplete="nickname" maxlength="24" placeholder="Contoh: Luna" />
+            <label for="email-input" id="email-label">Email (rahasia, tidak ditampilkan)</label>
+            <input id="email-input" type="email" autocomplete="email" required placeholder="kamu@example.com" />
+            <label for="password-input" id="password-label">Kata sandi</label>
+            <input id="password-input" type="password" autocomplete="current-password" minlength="8" required placeholder="Minimal 8 karakter" />
+            <div class="auth-actions"><button type="submit" id="login-button" class="button button-primary">Masuk</button><button type="button" id="signup-button" class="button button-outline">Buat akun</button></div>
           </form>
+          <p id="auth-message" class="feedback" aria-live="polite"></p>
+          <button id="logout-button" class="button button-outline hidden">Keluar</button>
         </section>
       </div>
 
-      <div id="toast" class="toast"></div>
+      <div id="toast" class="toast" role="status" aria-live="polite"></div>
+      <footer class="site-footer"><span>Deutsch Quest · Early Access</span><span id="footer-note">Belajar bahasa, satu petualangan setiap kali.</span></footer>
     </div>
     <script type="module" src="/src/main.js"></script>
   </body>
