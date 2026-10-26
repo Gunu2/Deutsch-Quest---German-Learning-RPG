@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { supabase, isSupabaseConfigured } from "./supabaseClient.js";
 import { getLanguage, setLanguage, languages } from "./i18n.js";
-import { cefrLevels, lessons, getLevelForXP } from "./content.js";
+import { cefrLevels, lessons } from "./content.js";
 import { initQuestSystem } from "./questSystem.js";
 import "./style.css";
 
@@ -69,9 +69,20 @@ function renderStaticText() {
   renderPlayers();
 }
 
+function getMasteryLevel() {
+  let index = 0;
+  for (let i = 0; i < cefrLevels.length - 1; i++) {
+    const bank = lessons[cefrLevels[i].id] || [];
+    const mastered = bank.filter((lesson) => state.completedLessons.includes(lesson.id)).length;
+    if (bank.length && mastered / bank.length >= 0.8) index = i + 1;
+    else break;
+  }
+  return cefrLevels[index].id;
+}
+
 function renderStats() {
   $("xp-value").textContent = `${state.xp} XP`;
-  const level = getLevelForXP(state.xp);
+  const level = getMasteryLevel();
   const idx = cefrLevels.findIndex((item) => item.id === level);
   $("level-value").textContent = `${level} · ${t().levels[idx]}`;
   const activeLessons = lessons[state.activeLevel] || [];
@@ -82,12 +93,13 @@ function renderStats() {
 }
 
 function renderCEFR() {
-  const current = getLevelForXP(state.xp);
+  const current = getMasteryLevel();
   const currentIndex = cefrLevels.findIndex((item) => item.id === current);
   $("cefr-path").innerHTML = cefrLevels.map((level, index) => {
     const unlocked = index <= currentIndex;
     const count = (lessons[level.id] || []).filter((lesson) => state.completedLessons.includes(lesson.id)).length;
-    return `<button type="button" class="cefr-step ${unlocked ? "unlocked" : "locked"} ${state.activeLevel === level.id ? "selected" : ""}" data-level="${level.id}" ${unlocked ? "" : "disabled"} aria-label="${level.id}"><span>${level.id}</span><small>${unlocked ? `${count}/${(lessons[level.id] || []).length}` : "🔒"}</small></button>`;
+    const total = (lessons[level.id] || []).length;
+    return `<button type="button" class="cefr-step ${unlocked ? "unlocked" : "locked"} ${state.activeLevel === level.id ? "selected" : ""}" data-level="${level.id}" ${unlocked ? "" : "disabled"} aria-label="${level.id}" title="${unlocked ? `${count}/${total} lessons completed` : `Complete at least 80% of ${cefrLevels[index-1]?.id || "the previous level"} to unlock`}"><span>${level.id}</span><small>${unlocked ? `${count}/${total}` : "🔒"}</small></button>`;
   }).join("");
   document.querySelectorAll(".cefr-step[data-level]").forEach((button) => button.addEventListener("click", () => {
     state.activeLevel = button.dataset.level;
@@ -208,7 +220,7 @@ class VillageScene extends Phaser.Scene {
         name: state.displayName || "Adventurer",
         x: Math.round(this.playerSprite.x),
         y: Math.round(this.playerSprite.y),
-        level: getLevelForXP(state.xp)
+        level: getMasteryLevel()
       };
       state.realtimeChannel.track(payload);
       state.realtimeChannel.send({ type: "broadcast", event: "player-move", payload });
@@ -291,7 +303,7 @@ async function saveProgress() {
     id: state.user.id,
     display_name: state.displayName || "Adventurer",
     xp: state.xp,
-    cefr_level: getLevelForXP(state.xp),
+    cefr_level: getMasteryLevel(),
     completed_lessons: state.completedLessons,
     updated_at: new Date().toISOString()
   }, { onConflict: "id" });
@@ -321,7 +333,7 @@ async function startPresence() {
     })
     .subscribe(async (status) => {
       if (status === "SUBSCRIBED") {
-        await channel.track({ name: state.displayName || "Adventurer", x: 350, y: 330, level: getLevelForXP(state.xp) });
+        await channel.track({ name: state.displayName || "Adventurer", x: 350, y: 330, level: getMasteryLevel() });
         $("connection-state").textContent = "Online";
         $("connection-state").classList.add("connected");
       } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
@@ -449,7 +461,7 @@ function init() {
   startGame();
   state.questSystem = initQuestSystem({
     supabase,
-    getProfile: () => ({ user: state.user, displayName: state.displayName, level: getLevelForXP(state.xp) }),
+    getProfile: () => ({ user: state.user, displayName: state.displayName, level: getMasteryLevel() }),
     addXP: (amount) => {
       state.xp += amount;
       localStorage.setItem("dq-xp", String(state.xp));

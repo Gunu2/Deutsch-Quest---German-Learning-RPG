@@ -1,3 +1,4 @@
+import { lessons } from "./content.js";
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
@@ -50,8 +51,33 @@ export function initQuestSystem({supabase, getProfile, addXP, getLanguage, toast
   const uiText = (obj) => obj[language()] || obj.en || obj.id || "";
   const user = () => getProfile()?.user;
   const playerName = () => getProfile()?.displayName || "Adventurer";
-  const localQuestions = () => BANK[activeLevel] || BANK.A1;
-  const allQuestions = () => localQuestions();
+  const localQuestions = () => {
+    const curated = BANK[activeLevel] || BANK.A1;
+    const lessonQuestions = (lessons[activeLevel] || []).map((lesson) => ({
+      id: lesson.id,
+      scene: `Sonnenfeld story challenge · ${lesson.npc || "Villager"}`,
+      prompt: lesson.prompt[language()] || lesson.prompt.en,
+      german: lesson.german,
+      options: lesson.options.map((option) => option.label[language()] || option.label.en),
+      correct: lesson.options.findIndex((option) => option.correct),
+      why: lesson.explanation[language()] || lesson.explanation.en,
+      hint: `Look at the meaning and structure of: „${lesson.german}“`
+    }));
+    const byId = new Map();
+    [...curated, ...lessonQuestions].forEach((question, index) => {
+      const id = question.id || `${activeLevel}-raid-${index}`;
+      if (!byId.has(id)) byId.set(id, { ...question, id });
+    });
+    return [...byId.values()];
+  };
+  let questionDeck = [];
+  const allQuestions = () => {
+    if (!questionDeck.length) {
+      questionDeck = localQuestions().map((question) => ({ question, sort: Math.random() }))
+        .sort((a, b) => a.sort - b.sort).map((entry) => entry.question);
+    }
+    return questionDeck;
+  };
 
   function status(text) { $("team-status").textContent = text; }
   function renderMeters() {
@@ -81,7 +107,7 @@ export function initQuestSystem({supabase, getProfile, addXP, getLanguage, toast
       if (members.length < 2) { toast("Team raid needs at least 2 signed-in players in the same room."); return; }
     }
     mode = modeChoice; activeLevel = LEVEL_ORDER.includes(level) ? level : (getProfile()?.level || "A1");
-    stageIndex=0; questionIndex=0; bossHP=3; hearts=mode === "team" ? 5 : 3; busy=false;
+    stageIndex=0; questionIndex=0; questionDeck=[]; bossHP=3; hearts=mode === "team" ? 5 : 3; busy=false;
     $("raid-backdrop").classList.remove("hidden"); showQuestion();
     if (mode === "team") broadcast({kind:"start",stageIndex,questionIndex,bossHP,hearts,activeLevel});
   }
@@ -173,7 +199,7 @@ export function initQuestSystem({supabase, getProfile, addXP, getLanguage, toast
   $("join-team-button").addEventListener("click",joinRoom);
   $("team-raid-button").addEventListener("click",()=>open("team",getProfile()?.level));
   $("ai-raid-button").addEventListener("click",async()=>{
-    activeLevel=$("ai-level-select").value; mode="solo"; stageIndex=0; questionIndex=0; bossHP=3; hearts=3; busy=false;
+    activeLevel=$("ai-level-select").value; mode="solo"; stageIndex=0; questionIndex=0; questionDeck=[]; bossHP=3; hearts=3; busy=false;
     $("raid-backdrop").classList.remove("hidden");
     $("raid-feedback").textContent="Quest Master is preparing a scenario…";
     current=await makeQuestion(activeLevel); showQuestionFrom(current);

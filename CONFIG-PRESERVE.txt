@@ -1,0 +1,6 @@
+IMPORTANT BEFORE UPLOADING TO GITHUB
+
+This package intentionally omits src/config.js so your existing Supabase configuration is not overwritten.
+Keep the src/config.js file already present in your GitHub repository.
+If your repository does not have src/config.js, copy src/config.example.js to src/config.js and add your own Supabase Project URL and publishable key.
+Never put a service_role or secret key in browser code.

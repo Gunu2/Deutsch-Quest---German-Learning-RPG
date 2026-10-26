@@ -2,7 +2,7 @@
 
 **Deutsch Quest** is a browser-based German-learning RPG starter project. Explore the Sonnenfeld village, approach Frau Marta, answer a German greeting question, and earn XP.
 
-> Current status: **early development / playable foundation**. This repository is not yet a complete commercial release. The world, one A1 sample lesson, local XP, four UI languages, Supabase authentication wiring, profile persistence wiring, and a Realtime presence channel are implemented in code. Online functions require your own Supabase project and have not been validated against your live project.
+> Current status: **early development / playable foundation**. This repository is not yet a complete commercial release. The world, starter lesson bank for A1–C2, local XP, four UI languages, Supabase authentication wiring, profile persistence wiring, and a Realtime presence channel are implemented in code. Online functions require your own Supabase project and have not been validated against your live project.
 
 ## Revised gameplay (v0.3)
 
@@ -25,7 +25,7 @@
 - Phaser 3 village scene with keyboard movement (WASD / arrow keys).
 - NPC proximity and lesson interaction using **E** or the Talk button.
 - Three starter lessons per CEFR level (A1-C2), with answer feedback and XP rewards. These are a small starter bank, not a complete or formally validated CEFR curriculum.
-- XP stored locally; profile save/load code for Supabase.
+- XP stored locally; profile save/load code for Supabase. CEFR path unlocks are based on completing at least 80% of the previous level’s current lesson bank, rather than XP alone.
 - UI language architecture for Indonesian, English, German, and Spanish.
 - Supabase email/password signup and login wiring with display-name-only UI (email remains an authentication credential).
 - Supabase Realtime presence/broadcast channel wiring for the village.
@@ -34,7 +34,7 @@
 
 ## Not finished yet
 
-- A2, B1, B2, C1, and C2 lesson banks are empty. The level path is a framework, not a complete curriculum.
+- Each CEFR level currently has six starter lessons. This is still a starter bank, not a complete or formally validated CEFR curriculum.
 - Remote player positions have basic presence/broadcast sprite rendering code, but this has not been verified against a live Supabase project or network conditions.
 - UI translations are partial; the lesson bank has only three starter items per CEFR level and needs expert review and expansion.
 - No audio, speech recognition, pronunciation grading, inventory system, or quest editor yet. Boss raids are a first gameplay iteration and still need multi-device QA.

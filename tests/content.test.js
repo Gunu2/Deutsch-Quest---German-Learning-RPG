@@ -7,7 +7,7 @@ const languageKeys = ['id', 'en', 'de', 'es'];
 test('all CEFR levels have starter lessons', () => {
   for (const level of cefrLevels) {
     assert.ok(Array.isArray(lessons[level.id]), `${level.id} lesson bank exists`);
-    assert.ok(lessons[level.id].length >= 3, `${level.id} has at least three lessons`);
+    assert.ok(lessons[level.id].length >= 6, `${level.id} has at least six distinct lessons`);
   }
 });
 
