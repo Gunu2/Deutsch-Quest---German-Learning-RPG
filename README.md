@@ -4,6 +4,22 @@
 
 > Current status: **early development / playable foundation**. This repository is not yet a complete commercial release. The world, one A1 sample lesson, local XP, four UI languages, Supabase authentication wiring, profile persistence wiring, and a Realtime presence channel are implemented in code. Online functions require your own Supabase project and have not been validated against your live project.
 
+## Revised gameplay (v0.3)
+
+- Story-based language raids: three linked boss phases where German is the challenge, not random combat trivia.
+- Solo raid with escalating phases, hearts, boss shield, contextual choices, hints, explanations, and XP rewards.
+- Team raid room using Supabase Realtime presence/broadcast. Requires at least two signed-in players in the same room; real-world network behavior still needs testing.
+- Six CEFR difficulty bands (A1-C2) with contextual fallback scenarios. These are starter scenarios, not a certified CEFR curriculum.
+- Optional AI Quest Master via a Supabase Edge Function. The browser never receives the OpenAI secret. If the function is not deployed/configured, curated scenarios are used instead.
+- Signup asks for a display name; the game UI and player list show names, not email addresses.
+
+## Configure AI Quest Master (optional)
+
+1. Deploy `supabase/functions/quest-master/index.ts` as a Supabase Edge Function named `quest-master` (Dashboard → Edge Functions, or the Supabase CLI).
+2. Add `OPENAI_API_KEY` as an Edge Function secret. Optionally set `OPENAI_MODEL` (default: `gpt-4.1-mini`). Never put this secret in `src/config.js`, GitHub frontend code, or the browser.
+3. Confirm the function requires authenticated access, then test the **Ask Quest Master** button. If it is unavailable, the game should show a curated fallback scenario.
+4. AI-generated language content can still make mistakes. Treat it as practice content and review it before using it as formal assessment.
+
 ## Features in this repository
 
 - Phaser 3 village scene with keyboard movement (WASD / arrow keys).
@@ -11,7 +27,7 @@
 - Three starter lessons per CEFR level (A1-C2), with answer feedback and XP rewards. These are a small starter bank, not a complete or formally validated CEFR curriculum.
 - XP stored locally; profile save/load code for Supabase.
 - UI language architecture for Indonesian, English, German, and Spanish.
-- Supabase email/password signup and login wiring.
+- Supabase email/password signup and login wiring with display-name-only UI (email remains an authentication credential).
 - Supabase Realtime presence/broadcast channel wiring for the village.
 - Responsive layout for desktop and mobile browsers.
 - GitHub Actions workflow to build and publish to GitHub Pages.
@@ -21,7 +37,7 @@
 - A2, B1, B2, C1, and C2 lesson banks are empty. The level path is a framework, not a complete curriculum.
 - Remote player positions have basic presence/broadcast sprite rendering code, but this has not been verified against a live Supabase project or network conditions.
 - UI translations are partial; the lesson bank has only three starter items per CEFR level and needs expert review and expansion.
-- No audio, speech recognition, pronunciation grading, inventory, combat, mobile touch joystick, or quest editor yet.
+- No audio, speech recognition, pronunciation grading, inventory system, or quest editor yet. Boss raids are a first gameplay iteration and still need multi-device QA.
 - XP reward validation is client-side. Do not treat it as cheat-resistant for a public competitive release.
 - No live Supabase project has been configured or tested as part of this package.
 

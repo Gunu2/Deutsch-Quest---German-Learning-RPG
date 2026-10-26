@@ -2,6 +2,7 @@ import Phaser from "phaser";
 import { supabase, isSupabaseConfigured } from "./supabaseClient.js";
 import { getLanguage, setLanguage, languages } from "./i18n.js";
 import { cefrLevels, lessons, getLevelForXP } from "./content.js";
+import { initQuestSystem } from "./questSystem.js";
 import "./style.css";
 
 const state = {
@@ -14,6 +15,8 @@ const state = {
   remoteSprites: new Map(),
   touchDirection: { up:false, down:false, left:false, right:false },
   user: null,
+  displayName: localStorage.getItem("dq-display-name") || "Adventurer",
+  questSystem: null,
   session: null,
   realtimeChannel: null,
   players: new Map(),
@@ -40,7 +43,7 @@ function toast(message) {
 function renderStaticText() {
   const d = t();
   const textMap = {
-    "language-label": d.language, "auth-open": state.user ? `${d.signedInAs} ${state.user.email}` : d.auth,
+    "language-label": d.language, "auth-open": state.user ? state.displayName : d.auth,
     "world-eyebrow": d.eyebrow, "hero-title": d.heroTitle, "hero-copy": d.heroCopy,
     "xp-label": d.xp, "level-label": d.level, "online-label": d.online,
     "map-label": d.map, "map-subtitle": d.mapSubtitle,
@@ -108,7 +111,7 @@ function renderPlayers() {
     list.innerHTML = `<span class="muted">${t().playersCopy}</span>`;
     return;
   }
-  const rows = [`<div class="player-row"><span class="player-dot self"></span><span>${escapeHTML(state.user.email || "You")} <small>(you)</small></span></div>`];
+  const rows = [`<div class="player-row"><span class="player-dot self"></span><span>${escapeHTML(state.displayName || "Adventurer")} <small>(you)</small></span></div>`];
   for (const player of state.players.values()) {
     rows.push(`<div class="player-row"><span class="player-dot"></span><span>${escapeHTML(player.name || "Adventurer")}</span></div>`);
   }
@@ -202,7 +205,7 @@ class VillageScene extends Phaser.Scene {
       this.lastPresenceUpdate = this.time.now;
       const payload = {
         id: state.user.id,
-        name: state.user.email?.split("@")[0] || "Adventurer",
+        name: state.displayName || "Adventurer",
         x: Math.round(this.playerSprite.x),
         y: Math.round(this.playerSprite.y),
         level: getLevelForXP(state.xp)
@@ -286,7 +289,7 @@ async function saveProgress() {
   if (!supabase || !state.user) return;
   const { error } = await supabase.from("profiles").upsert({
     id: state.user.id,
-    display_name: state.user.email?.split("@")[0] || "Adventurer",
+    display_name: state.displayName || "Adventurer",
     xp: state.xp,
     cefr_level: getLevelForXP(state.xp),
     completed_lessons: state.completedLessons,
@@ -318,7 +321,7 @@ async function startPresence() {
     })
     .subscribe(async (status) => {
       if (status === "SUBSCRIBED") {
-        await channel.track({ name: state.user.email?.split("@")[0] || "Adventurer", x: 350, y: 330, level: getLevelForXP(state.xp) });
+        await channel.track({ name: state.displayName || "Adventurer", x: 350, y: 330, level: getLevelForXP(state.xp) });
         $("connection-state").textContent = "Online";
         $("connection-state").classList.add("connected");
       } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
@@ -335,18 +338,22 @@ async function authAction(mode) {
   }
   const email = $("email-input").value.trim();
   const password = $("password-input").value;
+  const requestedName = $("display-name-input").value.trim().replace(/\s+/g, " ").slice(0, 24);
+  if (mode === "signup" && !requestedName) { $("auth-message").textContent = "Masukkan nama pemain yang ingin ditampilkan."; return; }
   $("auth-message").textContent = t().loading;
   const result = mode === "signup"
-    ? await supabase.auth.signUp({ email, password })
+    ? await supabase.auth.signUp({ email, password, options: { data: { display_name: requestedName } } })
     : await supabase.auth.signInWithPassword({ email, password });
   if (result.error) {
     $("auth-message").textContent = t().authError + result.error.message;
     return;
   }
   if (mode === "signup" && !result.data.session) {
+    localStorage.setItem("dq-display-name", requestedName);
     $("auth-message").textContent = t().accountCreated;
     return;
   }
+  if (mode === "signup" && requestedName) state.displayName = requestedName;
   $("auth-message").textContent = t().loggedIn;
   await handleSession(result.data.session);
 }
@@ -355,7 +362,10 @@ async function handleSession(session) {
   state.session = session;
   state.user = session?.user || null;
   if (state.user && supabase) {
-    const { data } = await supabase.from("profiles").select("xp, cefr_level, completed_lessons").eq("id", state.user.id).maybeSingle();
+    const { data } = await supabase.from("profiles").select("display_name, xp, cefr_level, completed_lessons").eq("id", state.user.id).maybeSingle();
+    const metadataName = state.user.user_metadata?.display_name;
+    state.displayName = (data?.display_name || metadataName || state.displayName || "Adventurer").trim().slice(0,24);
+    localStorage.setItem("dq-display-name", state.displayName);
     if (data) {
       state.xp = Math.max(state.xp, Number(data.xp || 0));
       state.completedLessons = [...new Set([...state.completedLessons, ...(Array.isArray(data.completed_lessons) ? data.completed_lessons : [])])];
@@ -372,7 +382,8 @@ async function handleSession(session) {
     $("logout-button").classList.add("hidden");
     $("connection-state").textContent = isSupabaseConfigured ? t().local : t().configMissing;
   }
-  $("auth-open").textContent = state.user ? `${t().signedInAs} ${state.user.email}` : t().auth;
+  $("auth-open").textContent = state.user ? state.displayName : t().auth;
+  if (state.user) $("display-name-input").value = state.displayName;
   renderPlayers();
 }
 
@@ -436,9 +447,21 @@ function init() {
   renderStaticText();
   setupEvents();
   startGame();
+  state.questSystem = initQuestSystem({
+    supabase,
+    getProfile: () => ({ user: state.user, displayName: state.displayName, level: getLevelForXP(state.xp) }),
+    addXP: (amount) => {
+      state.xp += amount;
+      localStorage.setItem("dq-xp", String(state.xp));
+      renderStats(); renderCEFR(); saveProgress();
+    },
+    getLanguage: () => state.language,
+    toast
+  });
   initAuth();
   window.addEventListener("beforeunload", () => {
     if (supabase && state.realtimeChannel) supabase.removeChannel(state.realtimeChannel);
+    if (state.questSystem) state.questSystem.close();
   });
 }
 init();

@@ -53,6 +53,15 @@
           </div>
         </section>
 
+        <section class="raid-hub info-card" aria-labelledby="raid-title">
+          <div class="raid-intro"><div class="section-kicker">STORY RAID · GERMAN IS THE BOSS</div><h2 id="raid-title">The Sprachwächter is corrupting the village</h2><p>Fight with language, not swords. Read the scene, choose a natural German response, and break the boss's shield. Each chapter raises the CEFR difficulty.</p></div>
+          <div class="raid-grid">
+            <article class="raid-card"><span class="raid-icon">🧭</span><h3>Solo campaign</h3><p>Learn the story at your own pace. Three phases, growing difficulty, hints after mistakes.</p><button id="solo-raid-button" class="button button-primary">Start solo raid</button></article>
+            <article class="raid-card"><span class="raid-icon">🛡️</span><h3>Team raid · 2–4 players</h3><p>Join a room with a friend. Share boss health and party hearts; the team must discuss answers together.</p><label for="team-room-input">Room code</label><div class="room-row"><input id="team-room-input" maxlength="12" value="SONNENFELD" aria-label="Team room code"><button id="join-team-button" class="button button-outline">Join room</button></div><div id="team-status" class="team-status">Sign in and join the same room with at least 2 players.</div><button id="team-raid-button" class="button button-primary" disabled>Start team raid (need 2)</button></article>
+            <article class="raid-card ai-card"><span class="raid-icon">✧</span><h3>AI Quest Master</h3><p>Generate fresh contextual quests with adjustable CEFR level. If AI is not configured, the game uses reviewed starter scenarios instead.</p><label for="ai-level-select">Challenge level</label><select id="ai-level-select"><option>A1</option><option>A2</option><option>B1</option><option>B2</option><option>C1</option><option>C2</option></select><button id="ai-raid-button" class="button button-outline">Ask Quest Master</button><small id="ai-status">AI needs a secure Supabase Edge Function. No API key belongs in browser code.</small></article>
+          </div>
+        </section>
+
         <section class="bottom-grid">
           <article class="info-card">
             <div class="section-kicker" id="quest-kicker">MISI AKTIF</div>
@@ -88,6 +97,21 @@
         </section>
       </div>
 
+      <div id="raid-backdrop" class="dialog-backdrop hidden">
+        <section class="dialog-card raid-dialog" role="dialog" aria-modal="true" aria-labelledby="raid-boss-name">
+          <button id="raid-close" class="dialog-close" aria-label="Close">×</button>
+          <div class="raid-boss-visual" id="raid-boss-visual">👁️‍🗨️</div>
+          <div class="section-kicker" id="raid-phase-label">CHAPTER 1 · A1</div>
+          <h2 id="raid-boss-name">Der Sprachwächter</h2>
+          <p id="raid-story">The village gate is sealed by a language curse.</p>
+          <div class="raid-meters"><div><span>Boss shield</span><strong id="boss-hp-text">3 / 3</strong></div><div class="meter"><span id="boss-hp-bar"></span></div><div><span>Party hearts</span><strong id="party-hearts">♥ ♥ ♥</strong></div></div>
+          <div class="scenario-box"><span class="section-kicker">SCENE</span><p id="raid-scene">A villager greets you at the gate.</p><h3 id="raid-prompt">What is the most natural reply?</h3></div>
+          <div id="raid-answer-list" class="answer-list"></div>
+          <p id="raid-feedback" class="feedback" aria-live="polite"></p>
+          <div class="raid-dialog-actions"><button id="raid-hint-button" class="button button-outline">Get a hint</button><button id="raid-next-button" class="button button-primary hidden">Next phase</button></div>
+        </section>
+      </div>
+
       <div id="auth-backdrop" class="dialog-backdrop hidden">
         <section class="dialog-card auth-card" role="dialog" aria-modal="true" aria-labelledby="auth-title">
           <button id="auth-close" class="dialog-close" aria-label="Close">×</button>
@@ -95,7 +119,9 @@
           <h2 id="auth-title">Masuk ke petualangan</h2>
           <p id="auth-description">Akun Supabase menyimpan progres dan mengaktifkan fitur online setelah konfigurasi selesai.</p>
           <form id="auth-form">
-            <label for="email-input" id="email-label">Email</label>
+            <label for="display-name-input" id="display-name-label">Nama pemain (ditampilkan ke pemain lain)</label>
+            <input id="display-name-input" type="text" autocomplete="nickname" maxlength="24" placeholder="Contoh: Luna" />
+            <label for="email-input" id="email-label">Email (rahasia, tidak ditampilkan)</label>
             <input id="email-input" type="email" autocomplete="email" required placeholder="kamu@example.com" />
             <label for="password-input" id="password-label">Kata sandi</label>
             <input id="password-input" type="password" autocomplete="current-password" minlength="8" required placeholder="Minimal 8 karakter" />
